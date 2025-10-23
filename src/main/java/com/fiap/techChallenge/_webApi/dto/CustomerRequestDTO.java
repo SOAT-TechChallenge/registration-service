@@ -1,0 +1,19 @@
+package com.fiap.techChallenge._webApi.dto;
+
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
+public record CustomerRequestDTO(
+        @NotBlank(message = "Nome é obrigatório")
+        String name,
+
+        @Email(message = "Email em formato inválido")
+        String email,
+
+        @Pattern(regexp = "^[0-9]{3}\\.[0-9]{3}\\.[0-9]{3}-[0-9]{2}$",
+                message = "CPF deve estar no formato XXX.XXX.XXX-XX")
+        String cpf,
+
+        boolean anonymous
+) {}
