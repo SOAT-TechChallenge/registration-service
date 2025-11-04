@@ -135,7 +135,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port       = 8080
     to_port         = 8080
     protocol        = "tcp"
-    cidr_blocks = [data.aws_vpc.existing.cidr_block]
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   egress {
@@ -222,7 +222,7 @@ resource "aws_ecs_task_definition" "registration_task" {
     }]
 
     essential = true
-    
+
     environment = [
       {
         name  = "SERVER_PORT"
