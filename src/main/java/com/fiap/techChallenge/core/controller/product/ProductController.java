@@ -12,6 +12,7 @@ import com.fiap.techChallenge.core.application.useCases.product.DeleteProductByI
 import com.fiap.techChallenge.core.application.useCases.product.DeleteProductsByCategoryUseCase;
 import com.fiap.techChallenge.core.application.useCases.product.FindProductByIdUseCase;
 import com.fiap.techChallenge.core.application.useCases.product.FindProductByNameUseCase;
+import com.fiap.techChallenge.core.application.useCases.product.ListAvaiableCategoriesUseCase;
 import com.fiap.techChallenge.core.application.useCases.product.ListAvailablesProductsByCategoryUseCase;
 import com.fiap.techChallenge.core.application.useCases.product.ListAvailablesProductsUseCase;
 import com.fiap.techChallenge.core.application.useCases.product.ListProductsByCategoryUseCase;
@@ -78,6 +79,11 @@ public class ProductController {
         ListProductsByCategoryUseCase listProductsByCategoryUseCase = new ListProductsByCategoryUseCase(productGateway);
         List<Product> productsList = listProductsByCategoryUseCase.execute(category);
         return productsList.stream().map(product -> ProductPresenter.toDTO(product)).toList();
+    }
+
+    public List<Category> listAvaiableCategories() {
+        ListAvaiableCategoriesUseCase listAvaiableCategoriesUseCase = new ListAvaiableCategoriesUseCase(productGateway);
+        return listAvaiableCategoriesUseCase.execute();
     }
 
     public List<ProductResponseDTO> listAvailablesByCategory(Category category) {

@@ -6,7 +6,7 @@ WORKDIR /app
 # Copia o .jar que já foi construído pelo pipeline de CI
 COPY target/*.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8082
 # porta de debug
 EXPOSE 5005
 

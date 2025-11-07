@@ -104,6 +104,12 @@ public class ProductWebController {
         return ResponseEntity.ok(productController.listByCategory(category));
     }
 
+    @GetMapping("/list-available-categories")
+    @Operation(summary = "List Avaiable Categories", description = "Lista categorias que contém produtos cadastrados")
+    public ResponseEntity<List<Category>> listAvaiableCategories() {
+        return ResponseEntity.ok(productController.listAvaiableCategories());
+    }
+
     @GetMapping("/list-availables-by-category/{category}")
     @Operation(summary = "List Availables",
             description = "Lista todos os produtos disponiveis da categoria informada")
