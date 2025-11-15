@@ -28,7 +28,7 @@ data "aws_subnets" "public" {
 
   filter {
     name   = "tag:Name"
-    values = ["techchallenge-vpc-public-*"]
+    values = ["techchallenge-vpc-Public-A", "techchallenge-vpc-Public-B"]
   }
 }
 
@@ -40,7 +40,7 @@ data "aws_subnets" "private" {
 
   filter {
     name   = "tag:Name"
-    values = ["techchallenge-vpc-private-*"]
+    values = ["techchallenge-vpc-Private-A", "techchallenge-vpc-Private-B"]
   }
 }
 
@@ -214,7 +214,7 @@ resource "aws_ecs_task_definition" "registration_task" {
 
   container_definitions = jsonencode([{
     name  = "registration-service"
-    image = "breno091073/registration-service:latest"
+    image = "leynerbueno/registration-service:latest"
     portMappings = [{
       containerPort = 8080
       hostPort      = 8080
