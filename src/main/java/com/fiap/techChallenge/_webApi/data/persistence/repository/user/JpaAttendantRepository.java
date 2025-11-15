@@ -10,7 +10,10 @@ import java.util.UUID;
 
 @Repository
 public interface JpaAttendantRepository extends JpaRepository<AttendantEntity, UUID> {
-    Optional<AttendantEntity> findByCpf(CPFEmbeddable cpf);
-    AttendantEntity findFirstByCpf(CPFEmbeddable cpf);
+
+    Optional<AttendantEntity> findByCpf_Number(String number);
+
+    Optional<AttendantEntity> findFirstByCpf_Number(String number);
+
     AttendantEntity findFirstById(UUID id);
 }

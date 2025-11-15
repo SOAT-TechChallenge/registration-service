@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user")
+@Table(name = "\"user\"")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class UserEntity {
 
@@ -14,54 +14,57 @@ public class UserEntity {
     @Column(name = "id", updatable = false, nullable = false, unique = true)
     protected UUID id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     protected String name;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     protected String email;
 
     @Embedded
     @AttributeOverride(
             name = "number",
-            column = @Column(name = "cpf", unique = true)
+            column = @Column(name = "cpf", unique = true, nullable = false, length = 11)
     )
     protected CPFEmbeddable cpf;
 
     protected UserEntity() {
     }
 
-    protected UUID getId() {
+
+    public UUID getId() {
         return id;
     }
 
-    protected void setId(UUID id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
-    protected String getName() {
+    public String getName() {
         return name;
     }
 
-    protected void setName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    protected String getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    protected void setEmail(String email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
-    protected CPFEmbeddable getCpf() {
+    public CPFEmbeddable getCpf() {
         return cpf;
     }
 
-    protected void setCpf(String cpfNumber) {
-        CPFEmbeddable embeddable = new CPFEmbeddable();
-        embeddable.setNumber(cpfNumber);
+    public void setCpf(String cpfNumber) {
+        if (cpfNumber == null) {
+            this.cpf = null;
+            return;
+        }
 
-        this.cpf = embeddable;
+        this.cpf = new CPFEmbeddable(cpfNumber);
     }
 }

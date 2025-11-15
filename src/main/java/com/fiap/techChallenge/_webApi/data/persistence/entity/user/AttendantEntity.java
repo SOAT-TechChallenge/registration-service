@@ -3,10 +3,12 @@ package com.fiap.techChallenge._webApi.data.persistence.entity.user;
 import java.util.UUID;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "user_attendant")
+@PrimaryKeyJoinColumn(name = "id")
 public class AttendantEntity extends UserEntity {
 
     @Override

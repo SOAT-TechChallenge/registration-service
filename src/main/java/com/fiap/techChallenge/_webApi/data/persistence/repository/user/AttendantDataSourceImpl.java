@@ -12,51 +12,47 @@ import java.util.UUID;
 @Component
 public class AttendantDataSourceImpl implements AttendantDataSource {
 
-    private final JpaAttendantRepository jpaAttendantRepository;
+    private final JpaAttendantRepository repository;
 
-    public AttendantDataSourceImpl(JpaAttendantRepository jpaAttendantRepository) {
-        this.jpaAttendantRepository = jpaAttendantRepository;
+    public AttendantDataSourceImpl(JpaAttendantRepository repository) {
+        this.repository = repository;
     }
 
     @Override
     public AttendantDTO save(AttendantDTO attendantDTO) {
-        var attendantEntity = AttendantMapper.dtoToEntity(attendantDTO);
-        var newAttendant = jpaAttendantRepository.save(attendantEntity);
-
-        return AttendantMapper.entityToDto(newAttendant);
+        var entity = AttendantMapper.dtoToEntity(attendantDTO);
+        var saved = repository.save(entity);
+        return AttendantMapper.entityToDto(saved);
     }
 
     @Override
     public AttendantDTO findFirstByCpf(String cpf) {
-        var attendantEntity = jpaAttendantRepository.findFirstByCpf(new CPFEmbeddable(cpf));
-
-        if (attendantEntity == null) {
-            return null;
-        }
-
-        return AttendantMapper.entityToDto(attendantEntity);
+        return repository.findFirstByCpf_Number(cleanCpf(cpf))
+                .map(AttendantMapper::entityToDto)
+                .orElse(null);
     }
 
     @Override
     public AttendantDTO findFirstById(UUID id) {
-        var attendantEntity = jpaAttendantRepository.findFirstById(id);
-
-        if (attendantEntity == null) {
-            return null;
-        }
-
-        return AttendantMapper.entityToDto(attendantEntity);
+        return repository.findFirstById(id) != null
+                ? AttendantMapper.entityToDto(repository.findFirstById(id))
+                : null;
     }
 
     @Override
     public List<AttendantDTO> findAll() {
-        var attendantEntities = jpaAttendantRepository.findAll();
-
-        return attendantEntities.stream().map(AttendantMapper::entityToDto).toList();
+        return repository.findAll()
+                .stream()
+                .map(AttendantMapper::entityToDto)
+                .toList();
     }
 
     @Override
     public void delete(UUID id) {
-        jpaAttendantRepository.deleteById(id);
+        repository.deleteById(id);
+    }
+
+    private String cleanCpf(String cpf) {
+        return cpf == null ? null : cpf.replaceAll("\\D", "");
     }
 }

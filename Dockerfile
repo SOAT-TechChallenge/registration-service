@@ -1,16 +1,15 @@
-FROM eclipse-temurin:17-jdk-alpine
+# Etapa 1 – Build com Maven
+FROM maven:3.9.6-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Define o diretório de trabalho dentro do container
+# Etapa 2 – Run
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
-# Copia o .jar que já foi construído pelo pipeline de CI
-COPY target/*.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
-# porta de debug
-EXPOSE 5005
-
-# Ativa o modo debug
-ENV JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
-
-CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
