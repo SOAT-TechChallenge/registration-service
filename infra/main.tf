@@ -12,11 +12,9 @@ provider "aws" {
   region = "us-east-1"
 }
 
-
 data "aws_vpc" "default" {
   default = true
 }
-
 
 data "aws_subnets" "all" {
   filter {
@@ -25,22 +23,22 @@ data "aws_subnets" "all" {
   }
 }
 
-
 data "aws_iam_role" "lab_role" {
   name = "LabRole"
 }
 
-
 resource "aws_security_group" "alb_sg" {
   name        = "registration-service-alb-sg"
-  description = "Security group for ALB"
+  description = "Security group for ALB - Allow from API Gateway"
   vpc_id      = data.aws_vpc.default.id
 
+  # Permite apenas do API Gateway (que usa IPs dinâmicos)
   ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # API Gateway usa IPs dinâmicos
+    description = "Allow from API Gateway"
   }
 
   egress {
@@ -79,7 +77,6 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-
 resource "aws_security_group" "rds_sg" {
   name        = "registration-rds-sg"
   description = "Security group for RDS PostgreSQL"
@@ -103,7 +100,6 @@ resource "aws_security_group" "rds_sg" {
     Name = "registration-rds-sg"
   }
 }
-
 
 resource "aws_db_subnet_group" "registration" {
   name       = "registration-db-subnet-group"
@@ -129,7 +125,6 @@ resource "aws_db_instance" "registration_db" {
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]
   db_subnet_group_name    = aws_db_subnet_group.registration.name
 
-
   apply_immediately       = true
   backup_retention_period = 0
   deletion_protection     = false
@@ -138,7 +133,6 @@ resource "aws_db_instance" "registration_db" {
     Name = "registration-db"
   }
 }
-
 
 resource "aws_lb" "registration_alb" {
   name               = "registration-service-alb"
@@ -153,7 +147,6 @@ resource "aws_lb" "registration_alb" {
     Name = "registration-service-alb"
   }
 }
-
 
 resource "aws_lb_target_group" "registration_tg" {
   name        = "registration-tg"
@@ -176,7 +169,6 @@ resource "aws_lb_target_group" "registration_tg" {
   }
 }
 
-
 resource "aws_lb_listener" "registration_listener" {
   load_balancer_arn = aws_lb.registration_alb.arn
   port              = "80"
@@ -187,7 +179,6 @@ resource "aws_lb_listener" "registration_listener" {
     target_group_arn = aws_lb_target_group.registration_tg.arn
   }
 }
-
 
 resource "aws_ecs_cluster" "registration_cluster" {
   name = "registration-cluster"
@@ -220,15 +211,13 @@ resource "aws_ecs_task_definition" "registration_task" {
     }]
     essential = true
 
-
     healthCheck = {
       command     = ["CMD-SHELL", "wget -q -O - http://localhost:8080/ || exit 1"]
       interval    = 60
       timeout     = 20
       retries     = 3
-      startPeriod = 120  # Mais tempo para app subir
+      startPeriod = 120
     }
-
 
     logConfiguration = {
       logDriver = "awslogs"
@@ -264,7 +253,6 @@ resource "aws_ecs_task_definition" "registration_task" {
         name  = "SPRING_PROFILES_ACTIVE"
         value = "prod"
       },
-
       {
         name  = "SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE"
         value = "5"
@@ -313,7 +301,6 @@ resource "aws_ecs_task_definition" "registration_task" {
   }
 }
 
-
 resource "aws_ecs_service" "registration_service" {
   name            = "registration-service"
   cluster         = aws_ecs_cluster.registration_cluster.id
@@ -321,8 +308,7 @@ resource "aws_ecs_service" "registration_service" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
-
-  health_check_grace_period_seconds = 600  # 10 minutos
+  health_check_grace_period_seconds = 600
 
   network_configuration {
     security_groups  = [aws_security_group.ecs_sg.id]
@@ -335,7 +321,6 @@ resource "aws_ecs_service" "registration_service" {
     container_name   = "registration-service"
     container_port   = 8080
   }
-
 
   deployment_controller {
     type = "ECS"
@@ -350,7 +335,6 @@ resource "aws_ecs_service" "registration_service" {
     Name = "registration-service"
   }
 }
-
 
 resource "aws_cloudwatch_log_group" "registration_service" {
   name              = "/ecs/registration-service"
