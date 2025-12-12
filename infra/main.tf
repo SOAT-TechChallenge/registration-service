@@ -208,7 +208,7 @@ resource "aws_ecs_task_definition" "registration_task" {
 
   container_definitions = jsonencode([{
     name  = "registration-service"
-    image = "rodrigopatricio19/registration-service:latest"
+    image = "leynerbueno/registration-service:latest"
     portMappings = [{
       containerPort = 8080
       hostPort      = 8080
